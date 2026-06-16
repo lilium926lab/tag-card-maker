@@ -78,7 +78,7 @@ canvas{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 40px
     </div>
 
     <div class="two">
-      <div class="field"><label>カード名</label><input type="text" id="name" value="御影 尊" maxlength="16"></div>
+      <div class="field"><label>カード名</label><input type="text" id="name" value="リリア・クロネット" maxlength="16"></div>
       <div class="field"><label>タイプ表記</label><input type="text" id="type" value="EVENT / NOIR" maxlength="18"></div>
     </div>
 
@@ -133,7 +133,7 @@ canvas{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 40px
 const CHROME=['#eef1f8','#8a93a8','#ffffff'];
 const RARITY_LABEL={R:'R',SR:'SR',SSR:'SSR',UR:'UR'};
 const state={
-  name:'御影 尊',type:'EVENT / NOIR',cost:'8',power:'12000',
+  name:'リリア・クロネット',type:'EVENT / NOIR',cost:'8',power:'12000',
   skills:document.getElementById('skills').value,
   setcode:'NOIR-024',illust:'illust. yuri',rarity:'SR',
   acc:'#ff3ea5',holo:true,sparkle:true,img:null,emblem:'hex',
@@ -252,22 +252,29 @@ function skillPanel(c,W,H,acc){
   // microstrip
   c.fillStyle='rgba(255,255,255,.5)';c.font=`500 ${W*0.020}px 'Zen Kaku Gothic New',sans-serif`;c.textAlign='left';
   c.fillText(state.setcode||'',px+W*0.05,py+ph-W*0.022);
-  c.textAlign='right';c.fillText(state.illust||'',px+pw-W*0.05-pwW-W*0.06,py+ph-W*0.022);
+  // illust credit — larger, watermark-like signature
+  c.textAlign='right';c.fillStyle=rgba(acc,.9);
+  c.font=`700 ${W*0.032}px 'Cinzel','Shippori Mincho B1',serif`;
+  c.shadowColor=rgba(acc,.45);c.shadowBlur=W*0.012;
+  c.fillText(state.illust||'',px+pw-W*0.05-pwW-W*0.06,py+ph-W*0.018);c.shadowBlur=0;
   c.restore();
 }
 function drawRose(c,s,acc){
-  const petal=(count,len,wid,rot,grad)=>{for(let i=0;i<count;i++){c.save();c.rotate(rot+i*2*Math.PI/count);
-    c.beginPath();c.moveTo(0,0);c.bezierCurveTo(wid,-len*0.35,wid*0.6,-len,0,-len);c.bezierCurveTo(-wid*0.6,-len,-wid,-len*0.35,0,0);c.closePath();
-    c.fillStyle=grad;c.fill();c.lineWidth=s*0.012;c.strokeStyle='rgba(0,0,0,.28)';c.stroke();c.restore();}};
-  const og=c.createLinearGradient(0,0,0,-s);og.addColorStop(0,darken(acc,.25));og.addColorStop(.5,acc);og.addColorStop(1,lighten(acc,.5));
-  const ing=c.createLinearGradient(0,0,0,-s*0.66);ing.addColorStop(0,darken(acc,.4));ing.addColorStop(1,lighten(acc,.3));
-  c.shadowColor=rgba(acc,.6);c.shadowBlur=s*0.4;
-  petal(9,s,s*0.5,0,og);c.shadowBlur=0;
-  petal(9,s*0.66,s*0.42,Math.PI/9,ing);
-  petal(6,s*0.42,s*0.36,0,og);
-  c.beginPath();c.arc(0,0,s*0.5,0,7);c.fillStyle='rgba(8,5,12,.92)';c.fill();
-  c.lineWidth=s*0.06;c.strokeStyle=metal(c,-s*0.5,-s*0.5,s*0.5,s*0.5,CHROME);c.stroke();
-  c.lineWidth=s*0.03;c.strokeStyle=acc;c.beginPath();c.arc(0,0,s*0.42,0,7);c.stroke();}
+  // petals radiate from a base radius (outside the center plate) and open outward
+  const petal=(count,base,len,wid,rot,grad)=>{for(let i=0;i<count;i++){c.save();c.rotate(rot+i*2*Math.PI/count);c.translate(0,-base);
+    c.beginPath();c.moveTo(0,0);c.bezierCurveTo(wid,-len*0.28,wid,-len*0.95,0,-len);c.bezierCurveTo(-wid,-len*0.95,-wid,-len*0.28,0,0);c.closePath();
+    c.fillStyle=grad;c.fill();c.lineWidth=s*0.01;c.strokeStyle='rgba(0,0,0,.22)';c.stroke();c.restore();}};
+  const og=c.createLinearGradient(0,0,0,-s);og.addColorStop(0,darken(acc,.18));og.addColorStop(.55,acc);og.addColorStop(1,lighten(acc,.58));
+  const ing=c.createLinearGradient(0,0,0,-s*0.7);ing.addColorStop(0,darken(acc,.32));ing.addColorStop(1,lighten(acc,.4));
+  c.shadowColor=rgba(acc,.55);c.shadowBlur=s*0.4;
+  petal(9,s*0.44,s*0.62,s*0.36,0,og);c.shadowBlur=0;     // outer open ring (wide = bloomed)
+  petal(9,s*0.42,s*0.44,s*0.32,Math.PI/9,ing);           // mid ring, offset for fullness
+  // center plate (large, drawn on top so the label sits cleanly above petals)
+  c.beginPath();c.arc(0,0,s*0.56,0,7);
+  const pg=c.createRadialGradient(0,-s*0.18,1,0,0,s*0.6);pg.addColorStop(0,darken(acc,.5));pg.addColorStop(1,'rgba(5,3,9,.97)');
+  c.fillStyle=pg;c.fill();
+  c.lineWidth=s*0.07;c.strokeStyle=metal(c,-s*0.56,-s*0.56,s*0.56,s*0.56,CHROME);c.stroke();
+  c.lineWidth=s*0.028;c.strokeStyle=acc;c.beginPath();c.arc(0,0,s*0.46,0,7);c.stroke();}
 
 function rarityEmblem(c,W,H,acc){
   const x=W*0.815,y=H*0.13,s=W*0.085,label=RARITY_LABEL[state.rarity],shape=state.emblem||'hex';
@@ -291,7 +298,7 @@ function rarityEmblem(c,W,H,acc){
       c.quadraticCurveTo(w,rad*0.72,0,rad);c.quadraticCurveTo(-w,rad*0.72,-w,rad*0.12);c.closePath();},
   };
   let fitW=s*1.18, ly=s*0.06;
-  if(shape==='rose'){drawRose(c,s,acc);fitW=s*1.0;}
+  if(shape==='rose'){drawRose(c,s,acc);fitW=s*0.92;}
   else{
     const draw=path[shape]||path.hex;
     c.shadowColor=rgba(acc,.65);c.shadowBlur=s*0.45;
